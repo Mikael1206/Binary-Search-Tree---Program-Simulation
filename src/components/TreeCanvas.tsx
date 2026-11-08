@@ -147,7 +147,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     <Card
       headerTitle="02 LIVE CANVAS"
       headerColorClass="bg-accent-pink"
-      className={`w-full max-w-[690px] h-[784px] ${className}`}
+      className={`w-full max-w-[690px] h-auto min-h-[620px] md:h-[784px] ${className}`}
     >
       {/* Subbar: Stats & Reset Button */}
       <div className="h-[52px] px-6 border-b-3 border-ink flex items-center justify-between bg-card flex-shrink-0 select-none">
@@ -180,7 +180,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
       {/* Live Canvas Area — scrolls when the tree grows past the viewport */}
       <div
-        className="relative w-full h-[440px] bg-panel border-b-3 border-ink overflow-auto select-none flex-shrink-0"
+        className="relative w-full h-[320px] sm:h-[360px] md:h-[440px] bg-panel border-b-3 border-ink overflow-auto select-none flex-shrink-0"
         style={{
           backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
           backgroundSize: '12px 12px',

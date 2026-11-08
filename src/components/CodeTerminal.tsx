@@ -581,7 +581,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
     <Card
       headerTitle="03 CODE TERMINAL"
       headerColorClass="bg-accent-yellow"
-      className={`w-full max-w-[360px] h-[784px] ${className}`}
+      className={`w-full max-w-[360px] h-auto min-h-[620px] md:h-[784px] ${className}`}
     >
       {/* Language Tabs Row */}
       <div className="p-4 border-b-3 border-ink flex items-center gap-2 bg-card select-none flex-shrink-0">
@@ -617,7 +617,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
       {/* Code Viewer Panel — empty placeholder until the first insert */}
       {!hasTree ? (
         <div
-          className="h-[392px] bg-panel flex flex-col items-center justify-center gap-3 select-none flex-shrink-0"
+          className="h-[260px] sm:h-[300px] md:h-[392px] bg-panel flex flex-col items-center justify-center gap-3 select-none flex-shrink-0"
           style={{
             backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
             backgroundSize: '12px 12px',
@@ -632,7 +632,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
         </div>
       ) : (
         <div
-          className="h-[392px] bg-panel p-4 overflow-y-auto font-mono text-[13px] leading-[22px] text-ink select-text flex-shrink-0"
+          className="h-[260px] sm:h-[300px] md:h-[392px] bg-panel p-4 overflow-y-auto font-mono text-[13px] leading-[22px] text-ink select-text flex-shrink-0"
           style={{
             backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
             backgroundSize: '12px 12px',

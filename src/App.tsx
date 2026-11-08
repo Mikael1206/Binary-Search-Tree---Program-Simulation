@@ -167,25 +167,25 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-canvas text-ink px-3 sm:px-4 md:px-6 xl:px-8 pt-3 sm:pt-4 pb-8 sm:pb-10 flex flex-col items-center select-text"
+      className="min-h-screen bg-canvas text-ink px-3 sm:px-4 md:px-6 xl:px-8 pt-3 sm:pt-4 pb-8 sm:pb-10 flex flex-col items-center select-text overflow-x-hidden"
       style={{
         backgroundImage: 'radial-gradient(rgba(32,32,28,0.12) 0.9px, transparent 0.9px)',
         backgroundSize: '12px 12px',
       }}
     >
       <div className="w-full max-w-[1376px] flex flex-col gap-2 sm:gap-3">
-        <header className="flex justify-center select-none flex-shrink-0 pb-1 pt-1">
-          <h1 className="flex flex-col items-center justify-center whitespace-nowrap leading-none tracking-[-0.085em] text-ink uppercase max-w-full sm:flex-row sm:items-end sm:justify-center">
-            <span className="inline-block font-black italic leading-[0.72] text-[68px] xs:text-[80px] sm:text-[120px] md:text-[150px] lg:text-[180px] xl:text-[210px] align-middle">
+        <header className="flex justify-center select-none flex-shrink-0 pb-1 pt-1 px-1">
+          <h1 className="flex flex-col items-center justify-center whitespace-nowrap leading-none tracking-[-0.085em] text-ink uppercase max-w-full sm:flex-row sm:items-end sm:justify-center sm:gap-2">
+            <span className="inline-block font-black italic leading-[0.72] text-[clamp(2.7rem,12vw,9rem)] align-middle">
               BINARY
             </span>
-            <span className="inline-block font-black leading-[0.9] text-[26px] sm:pb-1 sm:text-[38px] md:text-[52px] lg:text-[70px] xl:text-[76px] tracking-[-0.07em] align-bottom">
+            <span className="inline-block font-black leading-[0.9] text-[clamp(1.2rem,4vw,4.75rem)] tracking-[-0.07em] align-bottom">
               SEARCH TREE
             </span>
           </h1>
         </header>
 
-        <main className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-[minmax(260px,286px)_minmax(0,1fr)_minmax(280px,360px)] justify-center items-start mt-0.5">
+        <main className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-[minmax(260px,286px)_minmax(0,1fr)_minmax(280px,360px)] justify-center items-start mt-0.5">
           <CommandHub
             resetSignal={hubResetSignal}
             onInsert={handleInsert}
@@ -197,7 +197,7 @@ export const App: React.FC = () => {
             onSelectSucc={handleSelectSucc}
             traversalOrder={traversalOrder}
             onTraversalChange={handleTraversalChange}
-            className="w-full max-w-[420px] justify-self-center lg:max-w-none lg:w-[286px]"
+            className="w-full max-w-[420px] justify-self-center md:max-w-none md:w-full xl:w-[286px]"
           />
 
           <TreeCanvas
@@ -212,13 +212,13 @@ export const App: React.FC = () => {
             statusMessage={statusMessage}
             onSelectNode={setSelectedVal}
             onReset={handleReset}
-            className="w-full max-w-[420px] justify-self-center lg:max-w-none lg:w-full"
+            className="w-full max-w-[420px] justify-self-center md:max-w-none md:w-full xl:w-full"
           />
 
           <CodeTerminal
             action={lastAction}
             traversalOrder={traversalOrder}
-            className="w-full max-w-[420px] justify-self-center lg:max-w-none lg:w-[360px]"
+            className="w-full max-w-[420px] justify-self-center md:max-w-none md:w-full xl:w-[360px]"
           />
         </main>
       </div>

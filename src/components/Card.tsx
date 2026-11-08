@@ -21,9 +21,9 @@ export const Card: React.FC<CardProps> = ({
     >
       {headerTitle && (
         <div
-          className={`h-16 px-6 flex items-center border-b-3 border-ink flex-shrink-0 ${headerColorClass}`}
+          className={`h-14 px-4 sm:h-16 sm:px-6 flex items-center border-b-3 border-ink flex-shrink-0 ${headerColorClass}`}
         >
-          <h2 className="font-sans font-extrabold text-ink text-[13px] tracking-[0.22em] uppercase select-none">
+          <h2 className="font-sans font-extrabold text-ink text-[10px] tracking-[0.18em] uppercase select-none sm:text-[13px] sm:tracking-[0.22em]">
             {headerTitle}
           </h2>
         </div>

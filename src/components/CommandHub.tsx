@@ -71,7 +71,7 @@ export const CommandHub: React.FC<CommandHubProps> = ({
     <Card
       headerTitle="01 COMMAND HUB"
       headerColorClass="bg-accent-lime"
-      className={`w-full max-w-[286px] h-[784px] ${className}`}
+      className={`w-full max-w-[286px] h-auto min-h-[620px] md:h-[784px] ${className}`}
     >
       <div className="p-5 flex flex-col justify-between flex-1 gap-3 overflow-y-auto">
         {/* Section 1: INSERT NODE */}
