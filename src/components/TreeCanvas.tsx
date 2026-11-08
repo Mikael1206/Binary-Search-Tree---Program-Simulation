@@ -200,14 +200,6 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
             className="relative"
             style={{ width: contentWidth, height: contentHeight, minWidth: '100%' }}
           >
-            {/* Subtitles: Left < Root and Right > Root */}
-            <span className="absolute left-8 top-5 font-sans font-extrabold text-xs text-ink tracking-wider">
-              LEFT &lt; ROOT
-            </span>
-            <span className="absolute right-8 top-5 font-sans font-extrabold text-xs text-ink tracking-wider">
-              RIGHT &gt; ROOT
-            </span>
-
             {/* Target Indicator badge */}
             {targetNode && (
               <div

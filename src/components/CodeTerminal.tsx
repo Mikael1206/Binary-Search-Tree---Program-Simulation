@@ -575,8 +575,6 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
     FIND: 'FIND',
   };
 
-  const traceText = action.path.length > 0 ? action.path.join(' → ') : '—';
-
   return (
     <Card
       headerTitle="03 CODE TERMINAL"
@@ -663,7 +661,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
       )}
 
       {/* Bottom Explanation Panel — empty until the tree has values */}
-      <div className="flex-1 bg-card border-t-3 border-ink p-4 flex flex-col justify-between select-none">
+      <div className="flex-1 bg-card border-t-3 border-ink p-4 pt-6 flex flex-col gap-4 select-none">
         {!hasTree ? (
           <div className="flex flex-col items-center justify-center gap-2 h-full">
             <span className="font-sans font-extrabold text-xs tracking-wider uppercase text-muted-text">
@@ -675,31 +673,41 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
           </div>
         ) : (
           <>
-            <div className="flex flex-col gap-2">
-              <div className="font-sans font-extrabold text-xs tracking-wide text-ink">
-                {opInfo ? opInfo.time : 'TIME O(h)'}
+            <div className="mt-2 flex items-start gap-3 rounded-[10px] border-2 border-ink bg-[#f0efe8] p-3">
+              <div className="flex h-7 w-7 items-center justify-center border-2 border-ink rounded-[6px] bg-card font-sans font-black text-base leading-none text-ink">
+                ?
               </div>
-              <p className="font-sans text-xs text-ink/90 leading-relaxed font-normal">
-                {opInfo ? opInfo.note : 'h = tree height'}
-              </p>
-
-              {/* Live trace from canvas */}
-              <div className="h-[26px] bg-strip border-2 border-ink rounded-[5px] px-2.5 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-                <span className="font-sans font-extrabold text-[10px] tracking-wider uppercase text-ink flex-shrink-0">
-                  Trace
-                </span>
-                <span className="font-mono font-bold text-[11px] text-ink">
-                  {traceText}
-                </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-sans font-extrabold text-[11px] uppercase tracking-[0.12em] text-ink leading-tight">
+                  {action.op === 'INSERT' && 'SMALLER LEFT. BIGGER RIGHT.'}
+                  {action.op === 'SEARCH' && 'FOLLOW THE PATH.'}
+                  {action.op === 'DELETE' && 'FIND, REPLACE, REBALANCE.'}
+                  {action.op === 'TRAVERSAL' && 'VISIT EVERY NODE.'}
+                  {action.op === 'MIN' && 'GO LEFT UNTIL EMPTY.'}
+                  {action.op === 'MAX' && 'GO RIGHT UNTIL EMPTY.'}
+                  {action.op === 'PRED' && 'LOOK LEFT, THEN RIGHT MOST.'}
+                  {action.op === 'SUCC' && 'LOOK RIGHT, THEN LEFT MOST.'}
+                  {action.op === 'FIND' && 'COMPARE AND CONTINUE.'}
+                </div>
+                <p className="mt-1 font-sans text-[11px] leading-relaxed text-ink/90">
+                  {action.op === 'INSERT' && 'Compare the new value with each node. Follow a branch until an empty spot is found. Equal values leave the tree unchanged.'}
+                  {action.op === 'SEARCH' && 'Compare the target value with each node. Keep moving left or right until the value is found or the path ends.'}
+                  {action.op === 'DELETE' && 'Locate the node, then replace it with a valid successor or predecessor to preserve the BST ordering.'}
+                  {action.op === 'TRAVERSAL' && 'Visit each node in the selected order so the structure is explored systematically and predictably.'}
+                  {action.op === 'MIN' && 'Keep moving to the left child until there is no left branch left, then the current node is the minimum.'}
+                  {action.op === 'MAX' && 'Keep moving to the right child until there is no right branch left, then the current node is the maximum.'}
+                  {action.op === 'PRED' && 'Move to the left subtree and then follow the farthest right path to find the predecessor.'}
+                  {action.op === 'SUCC' && 'Move to the right subtree and then follow the farthest left path to find the successor.'}
+                  {action.op === 'FIND' && 'Compare the value with each node and continue down the matching branch until the target is found.'}
+                </p>
               </div>
             </div>
 
-            {/* Complexity Badge */}
-            <div className="h-[38px] bg-accent-lime border-2 border-ink rounded-[5px] px-3 flex items-center justify-between mt-3">
-              <span className="font-sans font-extrabold text-xs tracking-wider text-ink uppercase">
+            <div className="mt-1 h-[38px] bg-accent-lime border-2 border-ink rounded-[5px] px-3 flex items-center justify-between gap-2">
+              <span className="font-sans font-extrabold text-xs tracking-wider text-ink uppercase whitespace-nowrap">
                 {opInfo ? opInfo.time : 'TIME O(h)'}
               </span>
-              <span className="font-sans font-medium text-xs text-ink">
+              <span className="font-sans font-medium text-xs text-ink text-right truncate">
                 {opInfo ? opInfo.note : 'h = tree height'}
               </span>
             </div>
