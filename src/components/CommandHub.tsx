@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
+import { BSTValue, parseBSTValue } from '../lib/bst';
 
 export type TraversalType = 'PRE' | 'IN' | 'POST';
 
 export interface CommandHubProps {
   resetSignal?: number;
-  onInsert: (val: number) => void;
-  onDelete: (val: number) => void;
-  onSearch: (val: number) => void;
+  onInsert: (val: BSTValue) => void;
+  onDelete: (val: BSTValue) => void;
+  onSearch: (val: BSTValue) => void;
   onSelectMin: () => void;
   onSelectMax: () => void;
   onSelectPred: () => void;
@@ -42,27 +43,27 @@ export const CommandHub: React.FC<CommandHubProps> = ({
 
   const handleInsertSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const num = parseInt(insertVal, 10);
-    if (!isNaN(num)) {
-      onInsert(num);
+    const parsed = parseBSTValue(insertVal);
+    if (parsed !== null) {
+      onInsert(parsed);
       setInsertVal('');
     }
   };
 
   const handleDeleteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const num = parseInt(deleteVal, 10);
-    if (!isNaN(num)) {
-      onDelete(num);
+    const parsed = parseBSTValue(deleteVal);
+    if (parsed !== null) {
+      onDelete(parsed);
       setDeleteVal('');
     }
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const num = parseInt(searchVal, 10);
-    if (!isNaN(num)) {
-      onSearch(num);
+    const parsed = parseBSTValue(searchVal);
+    if (parsed !== null) {
+      onSearch(parsed);
       setSearchVal('');
     }
   };

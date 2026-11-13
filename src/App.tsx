@@ -13,6 +13,7 @@ import {
   postorder,
   collectTreeValues,
   BSTNode,
+  BSTValue,
 } from './lib/bst';
 import CommandHub, { TraversalType } from './components/CommandHub';
 import TreeCanvas from './components/TreeCanvas';
@@ -21,7 +22,7 @@ import CodeTerminal, { TerminalAction } from './components/CodeTerminal';
 export const App: React.FC = () => {
   // The canvas starts empty; nodes appear as the user inserts them.
   const [tree, setTree] = useState<BSTNode | null>(null);
-  const [selectedVal, setSelectedVal] = useState<number | null>(null);
+  const [selectedVal, setSelectedVal] = useState<BSTValue | null>(null);
   const [traversalOrder, setTraversalOrder] = useState<TraversalType>('IN');
   const [statusMessage, setStatusMessage] = useState<string>(
     'Tree is empty. Insert a value from the command hub to begin.'
@@ -30,8 +31,8 @@ export const App: React.FC = () => {
   const [lastAction, setLastAction] = useState<TerminalAction>({
     op: 'INSERT',
     val: null,
-    path: [] as number[],
-    treeValues: [] as number[],
+    path: [] as BSTValue[],
+    treeValues: [] as BSTValue[],
   });
 
   // Compute active min, max, predecessor, and successor
@@ -48,7 +49,7 @@ export const App: React.FC = () => {
       ? preorder(tree)
       : postorder(tree);
 
-  const handleInsert = (val: number) => {
+  const handleInsert = (val: BSTValue) => {
     const exists = search(tree, val) !== null;
     const path = getSearchPath(tree, val);
     if (!exists) path.push(val);
@@ -70,7 +71,7 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleDelete = (val: number) => {
+  const handleDelete = (val: BSTValue) => {
     const exists = search(tree, val) !== null;
     const path = getSearchPath(tree, val);
     const nextTree = deleteNode(tree, val);
@@ -91,7 +92,7 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleSearch = (val: number) => {
+  const handleSearch = (val: BSTValue) => {
     const path = getSearchPath(tree, val);
     const found = search(tree, val);
 

@@ -1,12 +1,13 @@
 import React from 'react';
+import { BSTValue } from '../lib/bst';
 import { TraversalType } from './CommandHub';
 
 export interface TraversalLogProps {
   orderType: TraversalType;
-  sequence: number[];
-  selectedVal: number | null;
-  predVal: number | null;
-  succVal: number | null;
+  sequence: BSTValue[];
+  selectedVal: BSTValue | null;
+  predVal: BSTValue | null;
+  succVal: BSTValue | null;
   isRoot: boolean;
   statusMessage?: string;
   className?: string;
@@ -42,7 +43,7 @@ export const TraversalLog: React.FC<TraversalLogProps> = ({
         {sequence.map((val, idx) => {
           const isSelected = val === selectedVal;
           return (
-            <React.Fragment key={val}>
+            <React.Fragment key={`${idx}-${String(val)}`}>
               {isSelected ? (
                 <div className="h-7 px-2.5 bg-accent-pink border-2 border-ink rounded-[3px] flex items-center justify-center font-mono font-extrabold text-sm text-ink">
                   {val}

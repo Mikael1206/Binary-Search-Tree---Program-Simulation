@@ -1,26 +1,26 @@
 import React from 'react';
 import Card from './Card';
 import TraversalLog from './TraversalLog';
-import { BSTNode, getNodeCount, getHeight } from '../lib/bst';
+import { BSTNode, BSTValue, getNodeCount, getHeight } from '../lib/bst';
 import { TraversalType } from './CommandHub';
 
 export interface TreeCanvasProps {
   root: BSTNode | null;
-  selectedVal: number | null;
-  minVal: number | null;
-  maxVal: number | null;
-  predVal: number | null;
-  succVal: number | null;
+  selectedVal: BSTValue | null;
+  minVal: BSTValue | null;
+  maxVal: BSTValue | null;
+  predVal: BSTValue | null;
+  succVal: BSTValue | null;
   traversalOrder: TraversalType;
-  traversalSequence: number[];
+  traversalSequence: BSTValue[];
   statusMessage?: string;
-  onSelectNode: (val: number) => void;
+  onSelectNode: (val: BSTValue) => void;
   onReset: () => void;
   className?: string;
 }
 
 interface NodeLayout {
-  val: number;
+  val: BSTValue;
   x: number;
   y: number;
   role: 'target' | 'min' | 'max' | 'pred' | 'succ' | 'normal';

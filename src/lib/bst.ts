@@ -1,12 +1,63 @@
+export type BSTValue = number | string;
+
+export function isLetterValue(value: BSTValue): value is string {
+  return typeof value === 'string' && /^[A-Za-z]$/.test(value);
+}
+
+export function normalizeBSTValue(value: BSTValue): BSTValue {
+  if (typeof value === 'string') {
+    return value.trim().toUpperCase();
+  }
+
+  return value;
+}
+
+export function compareBSTValues(a: BSTValue, b: BSTValue): number {
+  const left = normalizeBSTValue(a);
+  const right = normalizeBSTValue(b);
+
+  if (typeof left === 'number' && typeof right === 'number') {
+    return left - right;
+  }
+
+  if (typeof left === 'number' && typeof right === 'string') {
+    return -1;
+  }
+
+  if (typeof left === 'string' && typeof right === 'number') {
+    return 1;
+  }
+
+  return String(left).localeCompare(String(right), undefined, { sensitivity: 'base' });
+}
+
+export function parseBSTValue(raw: string): BSTValue | null {
+  const trimmed = raw.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (/^[A-Za-z]$/.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+
+  if (/^-?\d+$/.test(trimmed)) {
+    return Number(trimmed);
+  }
+
+  return null;
+}
+
 export interface BSTNode {
-  val: number;
+  val: BSTValue;
   left: BSTNode | null;
   right: BSTNode | null;
 }
 
-export function createNode(val: number): BSTNode {
+export function createNode(val: BSTValue): BSTNode {
   return {
-    val,
+    val: normalizeBSTValue(val),
     left: null,
     right: null,
   };
@@ -21,8 +72,8 @@ export function cloneTree(root: BSTNode | null): BSTNode | null {
   };
 }
 
-export function collectTreeValues(root: BSTNode | null): number[] {
-  const values: number[] = [];
+export function collectTreeValues(root: BSTNode | null): BSTValue[] {
+  const values: BSTValue[] = [];
 
   function walk(node: BSTNode | null) {
     if (!node) return;
@@ -35,19 +86,23 @@ export function collectTreeValues(root: BSTNode | null): number[] {
   return values;
 }
 
-export function insert(root: BSTNode | null, val: number): BSTNode {
+export function insert(root: BSTNode | null, val: BSTValue): BSTNode {
+  const normalizedVal = normalizeBSTValue(val);
+
   if (!root) {
-    return createNode(val);
+    return createNode(normalizedVal);
   }
-  if (val < root.val) {
+
+  const comparison = compareBSTValues(normalizedVal, root.val);
+  if (comparison < 0) {
     return {
       ...root,
-      left: insert(root.left, val),
+      left: insert(root.left, normalizedVal),
     };
-  } else if (val > root.val) {
+  } else if (comparison > 0) {
     return {
       ...root,
-      right: insert(root.right, val),
+      right: insert(root.right, normalizedVal),
     };
   }
   return root; // Equal values leave tree unchanged
@@ -75,18 +130,21 @@ export function findMax(root: BSTNode | null): BSTNode | null {
   return curr;
 }
 
-export function deleteNode(root: BSTNode | null, val: number): BSTNode | null {
+export function deleteNode(root: BSTNode | null, val: BSTValue): BSTNode | null {
+  const normalizedVal = normalizeBSTValue(val);
+
   if (!root) return null;
 
-  if (val < root.val) {
+  const comparison = compareBSTValues(normalizedVal, root.val);
+  if (comparison < 0) {
     return {
       ...root,
-      left: deleteNode(root.left, val),
+      left: deleteNode(root.left, normalizedVal),
     };
-  } else if (val > root.val) {
+  } else if (comparison > 0) {
     return {
       ...root,
-      right: deleteNode(root.right, val),
+      right: deleteNode(root.right, normalizedVal),
     };
   } else {
     // Node to delete found
@@ -103,39 +161,46 @@ export function deleteNode(root: BSTNode | null, val: number): BSTNode | null {
   }
 }
 
-export function search(root: BSTNode | null, val: number): BSTNode | null {
+export function search(root: BSTNode | null, val: BSTValue): BSTNode | null {
+  const normalizedVal = normalizeBSTValue(val);
+
   if (!root) return null;
-  if (root.val === val) return root;
-  if (val < root.val) return search(root.left, val);
-  return search(root.right, val);
+  const comparison = compareBSTValues(normalizedVal, root.val);
+  if (comparison === 0) return root;
+  if (comparison < 0) return search(root.left, normalizedVal);
+  return search(root.right, normalizedVal);
 }
 
 /**
  * Returns the values visited while walking from the root towards `val`.
  * Stops at the matching node, or at the last node compared when absent.
  */
-export function getSearchPath(root: BSTNode | null, val: number): number[] {
-  const path: number[] = [];
+export function getSearchPath(root: BSTNode | null, val: BSTValue): BSTValue[] {
+  const normalizedVal = normalizeBSTValue(val);
+  const path: BSTValue[] = [];
   let curr = root;
 
   while (curr !== null) {
     path.push(curr.val);
-    if (val === curr.val) break;
-    curr = val < curr.val ? curr.left : curr.right;
+    const comparison = compareBSTValues(normalizedVal, curr.val);
+    if (comparison === 0) break;
+    curr = comparison < 0 ? curr.left : curr.right;
   }
 
   return path;
 }
 
-export function findPredecessor(root: BSTNode | null, targetVal: number): BSTNode | null {
+export function findPredecessor(root: BSTNode | null, targetVal: BSTValue): BSTNode | null {
+  const normalizedVal = normalizeBSTValue(targetVal);
   let predecessor: BSTNode | null = null;
   let curr = root;
 
   while (curr !== null) {
-    if (targetVal > curr.val) {
+    const comparison = compareBSTValues(normalizedVal, curr.val);
+    if (comparison > 0) {
       predecessor = curr;
       curr = curr.right;
-    } else if (targetVal < curr.val) {
+    } else if (comparison < 0) {
       curr = curr.left;
     } else {
       if (curr.left !== null) {
@@ -148,15 +213,17 @@ export function findPredecessor(root: BSTNode | null, targetVal: number): BSTNod
   return predecessor;
 }
 
-export function findSuccessor(root: BSTNode | null, targetVal: number): BSTNode | null {
+export function findSuccessor(root: BSTNode | null, targetVal: BSTValue): BSTNode | null {
+  const normalizedVal = normalizeBSTValue(targetVal);
   let successor: BSTNode | null = null;
   let curr = root;
 
   while (curr !== null) {
-    if (targetVal < curr.val) {
+    const comparison = compareBSTValues(normalizedVal, curr.val);
+    if (comparison < 0) {
       successor = curr;
       curr = curr.left;
-    } else if (targetVal > curr.val) {
+    } else if (comparison > 0) {
       curr = curr.right;
     } else {
       if (curr.right !== null) {
@@ -169,8 +236,8 @@ export function findSuccessor(root: BSTNode | null, targetVal: number): BSTNode 
   return successor;
 }
 
-export function inorder(root: BSTNode | null): number[] {
-  const result: number[] = [];
+export function inorder(root: BSTNode | null): BSTValue[] {
+  const result: BSTValue[] = [];
   function traverse(node: BSTNode | null) {
     if (!node) return;
     traverse(node.left);
@@ -181,8 +248,8 @@ export function inorder(root: BSTNode | null): number[] {
   return result;
 }
 
-export function preorder(root: BSTNode | null): number[] {
-  const result: number[] = [];
+export function preorder(root: BSTNode | null): BSTValue[] {
+  const result: BSTValue[] = [];
   function traverse(node: BSTNode | null) {
     if (!node) return;
     result.push(node.val);
@@ -193,8 +260,8 @@ export function preorder(root: BSTNode | null): number[] {
   return result;
 }
 
-export function postorder(root: BSTNode | null): number[] {
-  const result: number[] = [];
+export function postorder(root: BSTNode | null): BSTValue[] {
+  const result: BSTValue[] = [];
   function traverse(node: BSTNode | null) {
     if (!node) return;
     traverse(node.left);

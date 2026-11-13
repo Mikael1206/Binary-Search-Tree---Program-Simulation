@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Card from './Card';
+import { BSTValue } from '../lib/bst';
 import { TraversalType } from './CommandHub';
 
 export type SupportedLanguage = 'C' | 'JAVA' | 'C#';
@@ -8,9 +9,9 @@ export type TerminalOperation = 'INSERT' | 'DELETE' | 'SEARCH' | 'TRAVERSAL' | '
 
 export interface TerminalAction {
   op: TerminalOperation;
-  val: number | null;
-  path: number[];
-  treeValues: number[];
+  val: BSTValue | null;
+  path: BSTValue[];
+  treeValues: BSTValue[];
 }
 
 export interface CodeTerminalProps {
@@ -20,8 +21,24 @@ export interface CodeTerminalProps {
 }
 
 /** Generate C code for the current BST values */
-function generateCCode(values: number[], path: number[]): string {
-  const sorted = [...values].sort((a, b) => a - b);
+function toNumericCodeValues(values: BSTValue[]): number[] {
+  return values.map((value) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    const upper = value.toUpperCase();
+    return upper.charCodeAt(0) - 64;
+  });
+}
+
+function generateCCode(values: BSTValue[], path: BSTValue[]): string {
+  const numericValues = toNumericCodeValues(values);
+  const numericPath = path.map((value) => {
+    if (typeof value === 'number') return value;
+    return value.toUpperCase().charCodeAt(0) - 64;
+  });
+  const sorted = [...numericValues].sort((a, b) => a - b);
   let code = [
     '#include <stdio.h>',
     '#include <stdlib.h>',
@@ -136,15 +153,15 @@ function generateCCode(values: number[], path: number[]): string {
   code.push('');
 
   // Add operations based on path
-  if (path.length > 0) {
+  if (numericPath.length > 0) {
     code.push('  // Operations matching the diagram targets');
     code.push('  Node* minNode = findMin(root);');
     code.push('  Node* maxNode = findMax(root);');
-    const targetVal = path[path.length - 1];
+    const targetVal = numericPath[numericPath.length - 1];
     code.push(`  Node* targetNode = findNode(root, ${targetVal});`);
     code.push('  Node* predecessor = NULL;');
     code.push('  Node* successor = NULL;');
-    if (path.includes(targetVal)) {
+    if (numericPath.includes(targetVal)) {
       code.push(`  predecessor = findPredecessor(root, ${targetVal});`);
       code.push(`  successor = findSuccessor(root, ${targetVal});`);
     }
@@ -167,8 +184,13 @@ function generateCCode(values: number[], path: number[]): string {
 }
 
 /** Generate Java code for the current BST values */
-function generateJavaCode(values: number[], path: number[]): string {
-  const sorted = [...values].sort((a, b) => a - b);
+function generateJavaCode(values: BSTValue[], path: BSTValue[]): string {
+  const numericValues = toNumericCodeValues(values);
+  const numericPath = path.map((value) => {
+    if (typeof value === 'number') return value;
+    return value.toUpperCase().charCodeAt(0) - 64;
+  });
+  const sorted = [...numericValues].sort((a, b) => a - b);
   let code = [
     '// Structure for a BST Node',
     'class Node {',
@@ -267,15 +289,15 @@ function generateJavaCode(values: number[], path: number[]): string {
   code.push('    }');
   code.push('');
 
-  if (path.length > 0) {
+  if (numericPath.length > 0) {
     code.push('    // Operations matching the diagram targets');
     code.push('    Node minNode = findMin(root);');
     code.push('    Node maxNode = findMax(root);');
-    const targetVal = path[path.length - 1];
+    const targetVal = numericPath[numericPath.length - 1];
     code.push(`    Node targetNode = findNode(root, ${targetVal});`);
     code.push('    Node predecessor = null;');
     code.push('    Node successor = null;');
-    if (path.includes(targetVal)) {
+    if (numericPath.includes(targetVal)) {
       code.push('    predecessor = findPredecessor(root, ' + targetVal + ');');
       code.push('    successor = findSuccessor(root, ' + targetVal + ');');
     }
@@ -298,8 +320,13 @@ function generateJavaCode(values: number[], path: number[]): string {
 }
 
 /** Generate C# code for the current BST values */
-function generateCSharpCode(values: number[], path: number[]): string {
-  const sorted = [...values].sort((a, b) => a - b);
+function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
+  const numericValues = toNumericCodeValues(values);
+  const numericPath = path.map((value) => {
+    if (typeof value === 'number') return value;
+    return value.toUpperCase().charCodeAt(0) - 64;
+  });
+  const sorted = [...numericValues].sort((a, b) => a - b);
   let code = [
     '// Structure for a BST Node',
     'public class Node {',
@@ -395,15 +422,15 @@ function generateCSharpCode(values: number[], path: number[]): string {
   code.push('    }');
   code.push('');
 
-  if (path.length > 0) {
+  if (numericPath.length > 0) {
     code.push('    // Operations matching the diagram targets');
     code.push('    Node? minNode = FindMin(root);');
     code.push('    Node? maxNode = FindMax(root);');
-    const targetVal = path[path.length - 1];
+    const targetVal = numericPath[numericPath.length - 1];
     code.push(`    Node? targetNode = FindNode(root, ${targetVal});`);
     code.push('    Node? predecessor = null;');
     code.push('    Node? successor = null;');
-    if (path.includes(targetVal)) {
+    if (numericPath.includes(targetVal)) {
       code.push('    predecessor = FindPredecessor(root, ' + targetVal + ');');
       code.push('    successor = FindSuccessor(root, ' + targetVal + ');');
     }
@@ -424,7 +451,7 @@ function generateCSharpCode(values: number[], path: number[]): string {
   return code.join('\n');
 }
 
-const CODE_GENERATORS: Record<SupportedLanguage, (values: number[], path: number[]) => string> = {
+const CODE_GENERATORS: Record<SupportedLanguage, (values: BSTValue[], path: BSTValue[]) => string> = {
   C: generateCCode,
   JAVA: generateJavaCode,
   'C#': generateCSharpCode,
