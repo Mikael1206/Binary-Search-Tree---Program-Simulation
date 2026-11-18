@@ -675,7 +675,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
       {/* Code Viewer Panel — empty placeholder until the first insert */}
       {!hasTree ? (
         <div
-          className="h-[260px] sm:h-[300px] md:h-[392px] bg-panel flex flex-col items-center justify-center gap-3 select-none flex-shrink-0"
+          className={`${isModal ? 'flex-1 min-h-0' : 'h-[260px] sm:h-[300px] md:h-[392px] flex-shrink-0'} bg-panel flex flex-col items-center justify-center gap-3 select-none`}
           style={{
             backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
             backgroundSize: '12px 12px',
@@ -690,7 +690,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
         </div>
       ) : (
         <div
-          className={`h-[260px] sm:h-[300px] md:h-[392px] bg-panel p-4 overflow-auto font-mono text-[13px] leading-[22px] text-ink select-text flex-shrink-0 ${isModal ? 'h-[520px]' : 'h-[260px] sm:h-[300px] md:h-[392px]'}`}
+          className={`h-[260px] sm:h-[300px] md:h-[392px] bg-panel p-4 overflow-auto font-mono text-[13px] leading-[22px] text-ink select-text ${isModal ? 'flex-1 min-h-0' : 'h-[260px] sm:h-[300px] md:h-[392px]'}`}
           style={{
             backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
             backgroundSize: '12px 12px',
@@ -720,8 +720,8 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
         </div>
       )}
 
-      {/* Bottom Explanation Panel — empty until the tree has values */}
-      <div className="flex-1 bg-card border-t-3 border-ink p-4 pt-6 flex flex-col gap-4 select-none">
+      {/* Bottom Explanation Panel — visible inline only */}
+      {!isModal && <div className="flex-1 bg-card border-t-3 border-ink p-4 pt-6 flex flex-col gap-4 select-none">
         {!hasTree ? (
           <div className="flex flex-col items-center justify-center gap-2 h-full">
             <span className="font-sans font-extrabold text-xs tracking-wider uppercase text-muted-text">
@@ -773,7 +773,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
             </div>
           </>
         )}
-      </div>
+      </div>}
     </Card>
   );
 
