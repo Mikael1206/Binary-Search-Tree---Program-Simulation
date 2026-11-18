@@ -230,8 +230,12 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
           </div>
         ) : (
           <div
-            className="relative"
-            style={{ width: contentWidth, height: contentHeight, minWidth: '100%' }}
+            className={isModal ? 'relative mx-auto' : 'relative'}
+            style={{
+              width: contentWidth,
+              height: contentHeight,
+              minWidth: isModal ? 'fit-content' : '100%',
+            }}
           >
             {/* Target Indicator badge */}
             {targetNode && (
