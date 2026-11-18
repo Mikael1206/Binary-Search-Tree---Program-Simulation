@@ -641,44 +641,23 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
       headerAction={!isModal ? expandButton : undefined}
       className={isModal ? 'w-full h-full rounded-none border-0 shadow-none' : `w-full max-w-[360px] h-auto min-h-[620px] md:h-[784px] ${className}`}
     >
-      {/* Header with Expand Control */}
-      <div className="flex-shrink-0">
-        <div className="flex items-center justify-between p-4 border-b border-ink bg-card">
-          <div className="text-lg font-extrabold text-ink">Code Terminal</div>
-          <div className="flex items-center gap-2">
-            {/* Language Tabs Row */}
-            <div className="p-4 border-b-3 border-ink flex items-center gap-2 bg-card select-none flex-shrink-0">
-              {(['C', 'JAVA', 'C#'] as SupportedLanguage[]).map((language) => {
-                const isActive = selectedLang === language;
-                return (
-                  <button
-                    key={language}
-                    type="button"
-                    onClick={() => setSelectedLang(language)}
-                    className={`flex-1 h-[34px] border-2 border-ink rounded-[5px] font-sans font-extrabold text-xs tracking-wider cursor-pointer transition-colors ${
-                      isActive ? 'bg-ink text-white' : 'bg-card text-ink hover:bg-neutral-100'
-                    }`}
-                  >
-                    {language}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Expand Button */}
+      {/* Language Tabs Row */}
+      <div className="p-4 border-b-3 border-ink flex items-center gap-2 bg-card select-none flex-shrink-0">
+        {(['C', 'JAVA', 'C#'] as SupportedLanguage[]).map((language) => {
+          const isActive = selectedLang === language;
+          return (
             <button
+              key={language}
               type="button"
-              aria-label="Expand Code Terminal"
-              onClick={() => setIsExpanded(true)}
-              className="w-9 h-9 border-2 border-ink rounded-[5px] bg-card flex items-center justify-center text-ink cursor-pointer hover:bg-white active:translate-x-0.5 active:translate-y-0.5 transition-colors"
+              onClick={() => setSelectedLang(language)}
+              className={`flex-1 h-[34px] border-2 border-ink rounded-[5px] font-sans font-extrabold text-xs tracking-wider cursor-pointer transition-colors ${
+                isActive ? 'bg-ink text-white' : 'bg-card text-ink hover:bg-neutral-100'
+              }`}
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
-                <path d="M3 8l5-5M21 8l-5-5M3 16l5 5M21 16l-5 5" />
-              </svg>
+              {language}
             </button>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Subheader — shows filename/operator when tree exists, idle hint otherwise */}
