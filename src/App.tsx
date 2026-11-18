@@ -17,7 +17,10 @@ import {
 } from './lib/bst';
 import CommandHub, { TraversalType } from './components/CommandHub';
 import TreeCanvas from './components/TreeCanvas';
-import CodeTerminal, { TerminalAction } from './components/CodeTerminal';
+import CodeTerminal, {
+  TerminalAction,
+  SupportedLanguage,
+} from './components/CodeTerminal';
 
 export const App: React.FC = () => {
   // The canvas starts empty; nodes appear as the user inserts them.
@@ -28,6 +31,8 @@ export const App: React.FC = () => {
     'Tree is empty. Insert a value from the command hub to begin.'
   );
   const [hubResetSignal, setHubResetSignal] = useState(0);
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<SupportedLanguage>('C');
   const [lastAction, setLastAction] = useState<TerminalAction>({
     op: 'INSERT',
     val: null,
@@ -219,6 +224,8 @@ export const App: React.FC = () => {
           <CodeTerminal
             action={lastAction}
             traversalOrder={traversalOrder}
+            selectedLanguage={selectedLanguage}
+            onLanguageChange={setSelectedLanguage}
             className="w-full max-w-[420px] justify-self-center md:max-w-none md:w-full xl:w-[360px]"
           />
         </main>

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from './Card';
+import ExpandModal from './ExpandModal';
 import TraversalLog from './TraversalLog';
 import { BSTNode, BSTValue, getNodeCount, getHeight } from '../lib/bst';
 import { TraversalType } from './CommandHub';
@@ -16,6 +17,7 @@ export interface TreeCanvasProps {
   statusMessage?: string;
   onSelectNode: (val: BSTValue) => void;
   onReset: () => void;
+  isModal?: boolean;
   className?: string;
 }
 
@@ -57,8 +59,10 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
   statusMessage,
   onSelectNode,
   onReset,
+  isModal = false,
   className = '',
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const nodeCount = getNodeCount(root);
   const height = getHeight(root);
 
@@ -143,11 +147,38 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     }
   };
 
-  return (
+  const expandButton = (
+    <button
+      type="button"
+      aria-label="Expand Live Canvas"
+      onClick={() => setIsExpanded(true)}
+      className="w-9 h-9 border-2 border-ink rounded-[5px] bg-card flex items-center justify-center text-ink cursor-pointer hover:bg-white active:translate-x-0.5 active:translate-y-0.5 transition-colors"
+    >
+      <svg
+        className="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+        <path d="M3 8l5-5M21 8l-5-5M3 16l5 5M21 16l-5 5" />
+      </svg>
+    </button>
+  );
+
+  const treeCard = (
     <Card
-      headerTitle="02 LIVE CANVAS"
+      headerTitle={isModal ? undefined : '02 LIVE CANVAS'}
       headerColorClass="bg-accent-pink"
-      className={`w-full max-w-[690px] h-auto min-h-[620px] md:h-[784px] ${className}`}
+      headerAction={!isModal ? expandButton : undefined}
+      className={
+        isModal
+          ? 'w-full h-full rounded-none border-0 shadow-none'
+          : `w-full max-w-[690px] h-auto min-h-[620px] md:h-[784px] ${className}`
+      }
     >
       {/* Subbar: Stats & Reset Button */}
       <div className="h-[52px] px-6 border-b-3 border-ink flex items-center justify-between bg-card flex-shrink-0 select-none">
@@ -180,7 +211,9 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
       {/* Live Canvas Area — scrolls when the tree grows past the viewport */}
       <div
-        className="relative w-full h-[320px] sm:h-[360px] md:h-[440px] bg-panel border-b-3 border-ink overflow-auto select-none flex-shrink-0"
+        className={`relative w-full bg-panel border-b-3 border-ink overflow-auto select-none flex-shrink-0 ${
+          isModal ? 'flex-1 min-h-[420px]' : 'h-[320px] sm:h-[360px] md:h-[440px]'
+        }`}
         style={{
           backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
           backgroundSize: '12px 12px',
@@ -269,7 +302,65 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
         isRoot={root !== null && selectedVal === root.val}
         statusMessage={statusMessage}
       />
+
+      {/* Expand Modal for detailed view */}
+      {isExpanded && (
+        <ExpandModal
+          isOpen={isExpanded}
+          onClose={() => setIsExpanded(false)}
+          title="02 LIVE CANVAS"
+          headerColorClass="bg-accent-pink"
+          ariaLabel="Expanded Live Canvas"
+          closeAriaLabel="Close Live Canvas"
+        >
+          <TreeCanvas
+            root={root}
+            selectedVal={selectedVal}
+            minVal={minVal}
+            maxVal={maxVal}
+            predVal={predVal}
+            succVal={succVal}
+            traversalOrder={traversalOrder}
+            traversalSequence={traversalSequence}
+            statusMessage={statusMessage}
+            onSelectNode={onSelectNode}
+            onReset={onReset}
+            isModal
+          />
+        </ExpandModal>
+      )}
     </Card>
+  );
+
+  if (isModal) return treeCard;
+
+  return (
+    <>
+      {treeCard}
+      <ExpandModal
+        isOpen={isExpanded}
+        onClose={() => setIsExpanded(false)}
+        title="02 LIVE CANVAS"
+        headerColorClass="bg-accent-pink"
+        ariaLabel="Expanded Live Canvas"
+        closeAriaLabel="Close Live Canvas"
+      >
+        <TreeCanvas
+          root={root}
+          selectedVal={selectedVal}
+          minVal={minVal}
+          maxVal={maxVal}
+          predVal={predVal}
+          succVal={succVal}
+          traversalOrder={traversalOrder}
+          traversalSequence={traversalSequence}
+          statusMessage={statusMessage}
+          onSelectNode={onSelectNode}
+          onReset={onReset}
+          isModal
+        />
+      </ExpandModal>
+    </>
   );
 };
 

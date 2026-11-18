@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Card from './Card';
+import ExpandModal from './ExpandModal';
 import { BSTValue } from '../lib/bst';
 import { TraversalType } from './CommandHub';
 
@@ -17,6 +18,9 @@ export interface TerminalAction {
 export interface CodeTerminalProps {
   action: TerminalAction;
   traversalOrder: TraversalType;
+  selectedLanguage?: SupportedLanguage;
+  onLanguageChange?: (language: SupportedLanguage) => void;
+  isModal?: boolean;
   className?: string;
 }
 
@@ -556,9 +560,23 @@ const COMPLEXITY_TEXTS: Record<TerminalOperation, { time: string; note: string }
 export const CodeTerminal: React.FC<CodeTerminalProps> = ({
   action,
   traversalOrder,
+  selectedLanguage,
+  onLanguageChange,
+  isModal = false,
   className = '',
 }) => {
-  const [selectedLang, setSelectedLang] = useState<SupportedLanguage>('C');
+  const [internalLanguage, setInternalLanguage] = useState<SupportedLanguage>('C');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const selectedLang = selectedLanguage ?? internalLanguage;
+
+  const setSelectedLang = (language: SupportedLanguage) => {
+    if (onLanguageChange) {
+      onLanguageChange(language);
+    } else {
+      setInternalLanguage(language);
+    }
+  };
+
   // Only render code when the tree has values; empty canvas shows the placeholder.
   const treeValues = action.treeValues ?? [];
   const hasTree = treeValues.length > 0;
@@ -602,29 +620,65 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
     FIND: 'FIND',
   };
 
-  return (
-    <Card
-      headerTitle="03 CODE TERMINAL"
-      headerColorClass="bg-accent-yellow"
-      className={`w-full max-w-[360px] h-auto min-h-[620px] md:h-[784px] ${className}`}
+  const expandButton = (
+    <button
+      type="button"
+      aria-label="Expand Code Terminal"
+      onClick={() => setIsExpanded(true)}
+      className="w-9 h-9 border-2 border-ink rounded-[5px] bg-card flex items-center justify-center text-ink cursor-pointer hover:bg-white active:translate-x-0.5 active:translate-y-0.5 transition-colors"
     >
-      {/* Language Tabs Row */}
-      <div className="p-4 border-b-3 border-ink flex items-center gap-2 bg-card select-none flex-shrink-0">
-        {(['C', 'JAVA', 'C#'] as SupportedLanguage[]).map((lang) => {
-          const isActive = selectedLang === lang;
-          return (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+        <path d="M3 8l5-5M21 8l-5-5M3 16l5 5M21 16l-5 5" />
+      </svg>
+    </button>
+  );
+
+  const terminalCard = (
+    <Card
+      headerTitle={isModal ? undefined : '03 CODE TERMINAL'}
+      headerColorClass="bg-accent-yellow"
+      headerAction={!isModal ? expandButton : undefined}
+      className={isModal ? 'w-full h-full rounded-none border-0 shadow-none' : `w-full max-w-[360px] h-auto min-h-[620px] md:h-[784px] ${className}`}
+    >
+      {/* Header with Expand Control */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-ink bg-card">
+          <div className="text-lg font-extrabold text-ink">Code Terminal</div>
+          <div className="flex items-center gap-2">
+            {/* Language Tabs Row */}
+            <div className="p-4 border-b-3 border-ink flex items-center gap-2 bg-card select-none flex-shrink-0">
+              {(['C', 'JAVA', 'C#'] as SupportedLanguage[]).map((language) => {
+                const isActive = selectedLang === language;
+                return (
+                  <button
+                    key={language}
+                    type="button"
+                    onClick={() => setSelectedLang(language)}
+                    className={`flex-1 h-[34px] border-2 border-ink rounded-[5px] font-sans font-extrabold text-xs tracking-wider cursor-pointer transition-colors ${
+                      isActive ? 'bg-ink text-white' : 'bg-card text-ink hover:bg-neutral-100'
+                    }`}
+                  >
+                    {language}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Expand Button */}
             <button
-              key={lang}
               type="button"
-              onClick={() => setSelectedLang(lang)}
-              className={`flex-1 h-[34px] border-2 border-ink rounded-[5px] font-sans font-extrabold text-xs tracking-wider cursor-pointer transition-colors ${
-                isActive ? 'bg-ink text-white' : 'bg-card text-ink hover:bg-neutral-100'
-              }`}
+              aria-label="Expand Code Terminal"
+              onClick={() => setIsExpanded(true)}
+              className="w-9 h-9 border-2 border-ink rounded-[5px] bg-card flex items-center justify-center text-ink cursor-pointer hover:bg-white active:translate-x-0.5 active:translate-y-0.5 transition-colors"
             >
-              {lang}
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+                <path d="M3 8l5-5M21 8l-5-5M3 16l5 5M21 16l-5 5" />
+              </svg>
             </button>
-          );
-        })}
+          </div>
+        </div>
       </div>
 
       {/* Subheader — shows filename/operator when tree exists, idle hint otherwise */}
@@ -657,7 +711,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
         </div>
       ) : (
         <div
-          className="h-[260px] sm:h-[300px] md:h-[392px] bg-panel p-4 overflow-y-auto font-mono text-[13px] leading-[22px] text-ink select-text flex-shrink-0"
+          className={`h-[260px] sm:h-[300px] md:h-[392px] bg-panel p-4 overflow-auto font-mono text-[13px] leading-[22px] text-ink select-text flex-shrink-0 ${isModal ? 'h-[520px]' : 'h-[260px] sm:h-[300px] md:h-[392px]'}`}
           style={{
             backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
             backgroundSize: '12px 12px',
@@ -742,6 +796,30 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
         )}
       </div>
     </Card>
+  );
+
+  if (isModal) return terminalCard;
+
+  return (
+    <>
+      {terminalCard}
+      <ExpandModal
+        isOpen={isExpanded}
+        onClose={() => setIsExpanded(false)}
+        title="03 CODE TERMINAL"
+        headerColorClass="bg-accent-yellow"
+        ariaLabel="Expanded Code Terminal"
+        closeAriaLabel="Close Code Terminal"
+      >
+        <CodeTerminal
+          action={action}
+          traversalOrder={traversalOrder}
+          selectedLanguage={selectedLang}
+          onLanguageChange={setSelectedLang}
+          isModal
+        />
+      </ExpandModal>
+    </>
   );
 };
 
