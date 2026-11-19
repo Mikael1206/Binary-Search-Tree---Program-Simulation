@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Card from './Card';
 import ExpandModal from './ExpandModal';
 import TraversalLog from './TraversalLog';
@@ -63,6 +63,9 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
   className = '',
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const canvasViewportRef = useRef<HTMLDivElement>(null);
+  const [modalScale, setModalScale] = useState(1);
+  const [manualScale, setManualScale] = useState(1);
   const nodeCount = getNodeCount(root);
   const height = getHeight(root);
 
@@ -128,6 +131,55 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     walk(node.right, depth + 1, childAnchor);
   };
   walk(root, 0);
+
+  useEffect(() => {
+    if (!isModal || !canvasViewportRef.current || root === null) {
+      setModalScale(1);
+      return;
+    }
+
+    const updateScale = () => {
+      const viewport = canvasViewportRef.current;
+      if (!viewport) return;
+
+      const availableWidth = Math.max(viewport.clientWidth - 32, 1);
+      const availableHeight = Math.max(viewport.clientHeight - 32, 1);
+      const scale = Math.min(
+        1,
+        availableWidth / contentWidth,
+        availableHeight / contentHeight
+      );
+      setModalScale(Math.max(scale, 0.25));
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(canvasViewportRef.current);
+    window.addEventListener('resize', updateScale);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [isModal, root, contentWidth, contentHeight]);
+
+  useEffect(() => {
+    const viewport = canvasViewportRef.current;
+    if (!viewport) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) return;
+
+      event.preventDefault();
+      const direction = event.deltaY < 0 ? 1 : -1;
+      setManualScale((current) =>
+        Math.min(3, Math.max(0.5, current + direction * 0.1))
+      );
+    };
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => viewport.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const targetNode = nodes.find((n) => n.val === selectedVal) ?? null;
 
@@ -211,8 +263,9 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
       {/* Live Canvas Area — scrolls when the tree grows past the viewport */}
       <div
+        ref={canvasViewportRef}
         className={`relative w-full bg-panel border-b-3 border-ink overflow-auto select-none flex-shrink-0 ${
-          isModal ? 'flex-1 min-h-[420px]' : 'h-[320px] sm:h-[360px] md:h-[440px]'
+          isModal ? 'flex-1 min-h-[420px] flex items-center justify-center' : 'h-[320px] sm:h-[360px] md:h-[440px]'
         }`}
         style={{
           backgroundImage: 'radial-gradient(rgba(32,32,28,0.08) 0.9px, transparent 0.9px)',
@@ -230,11 +283,13 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
           </div>
         ) : (
           <div
-            className={isModal ? 'relative mx-auto' : 'relative'}
+            className={isModal ? 'relative flex-none' : 'relative'}
             style={{
               width: contentWidth,
               height: contentHeight,
-              minWidth: isModal ? 'fit-content' : '100%',
+              transform: `scale(${isModal ? modalScale * manualScale : manualScale})`,
+              transformOrigin: 'center center',
+              minWidth: isModal ? undefined : '100%',
             }}
           >
             {/* Target Indicator badge */}
