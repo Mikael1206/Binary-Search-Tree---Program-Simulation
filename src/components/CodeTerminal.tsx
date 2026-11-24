@@ -36,7 +36,7 @@ function toNumericCodeValues(values: BSTValue[]): number[] {
   });
 }
 
-function generateCCode(values: BSTValue[], path: BSTValue[]): string {
+function generateCCode(values: BSTValue[], path: BSTValue[], action?: TerminalAction): string {
   const numericValues = toNumericCodeValues(values);
   const numericPath = path.map((value) => {
     if (typeof value === 'number') return value;
@@ -72,6 +72,30 @@ function generateCCode(values: BSTValue[], path: BSTValue[]): string {
     '    root->left = insert(root->left, value);',
     '  } else if (value > root->data) {',
     '    root->right = insert(root->right, value);',
+    '  }',
+    '  return root;',
+    '}',
+    '',
+    '// Delete function to remove a node while preserving BST ordering',
+    'Node* deleteNode(Node* root, int value) {',
+    '  if (root == NULL) return NULL;',
+    '  if (value < root->data) {',
+    '    root->left = deleteNode(root->left, value);',
+    '  } else if (value > root->data) {',
+    '    root->right = deleteNode(root->right, value);',
+    '  } else {',
+    '    if (root->left == NULL) {',
+    '      Node* right = root->right;',
+    '      free(root);',
+    '      return right;',
+    '    } else if (root->right == NULL) {',
+    '      Node* left = root->left;',
+    '      free(root);',
+    '      return left;',
+    '    }',
+    '    Node* successor = findMin(root->right);',
+    '    root->data = successor->data;',
+    '    root->right = deleteNode(root->right, successor->data);',
     '  }',
     '  return root;',
     '}',
@@ -154,6 +178,10 @@ function generateCCode(values: BSTValue[], path: BSTValue[]): string {
   code.push('  for (int i = 0; i < n; i++) {');
   code.push('    root = insert(root, values[i]);');
   code.push('  }');
+  if (action?.op === 'DELETE' && action.val !== null) {
+    const deleteVal = typeof action.val === 'number' ? action.val : action.val.toUpperCase().charCodeAt(0) - 64;
+    code.push(`  root = deleteNode(root, ${deleteVal});`);
+  }
   code.push('');
 
   // Add operations based on path
@@ -188,7 +216,7 @@ function generateCCode(values: BSTValue[], path: BSTValue[]): string {
 }
 
 /** Generate Java code for the current BST values */
-function generateJavaCode(values: BSTValue[], path: BSTValue[]): string {
+function generateJavaCode(values: BSTValue[], path: BSTValue[], action?: TerminalAction): string {
   const numericValues = toNumericCodeValues(values);
   const numericPath = path.map((value) => {
     if (typeof value === 'number') return value;
@@ -212,6 +240,23 @@ function generateJavaCode(values: BSTValue[], path: BSTValue[]): string {
     '    root.left = insert(root.left, value);',
     '  } else if (value > root.data) {',
     '    root.right = insert(root.right, value);',
+    '  }',
+    '  return root;',
+    '}',
+    '',
+    '// Delete function to remove a node while preserving BST ordering',
+    'Node deleteNode(Node root, int value) {',
+    '  if (root == null) return null;',
+    '  if (value < root.data) {',
+    '    root.left = deleteNode(root.left, value);',
+    '  } else if (value > root.data) {',
+    '    root.right = deleteNode(root.right, value);',
+    '  } else {',
+    '    if (root.left == null) return root.right;',
+    '    if (root.right == null) return root.left;',
+    '    Node successor = findMin(root.right);',
+    '    root.data = successor.data;',
+    '    root.right = deleteNode(root.right, successor.data);',
     '  }',
     '  return root;',
     '}',
@@ -291,6 +336,10 @@ function generateJavaCode(values: BSTValue[], path: BSTValue[]): string {
   code.push('    for (int i = 0; i < n; i++) {');
   code.push('      root = insert(root, values[i]);');
   code.push('    }');
+  if (action?.op === 'DELETE' && action.val !== null) {
+    const deleteVal = typeof action.val === 'number' ? action.val : action.val.toUpperCase().charCodeAt(0) - 64;
+    code.push(`    root = deleteNode(root, ${deleteVal});`);
+  }
   code.push('');
 
   if (numericPath.length > 0) {
@@ -324,7 +373,7 @@ function generateJavaCode(values: BSTValue[], path: BSTValue[]): string {
 }
 
 /** Generate C# code for the current BST values */
-function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
+function generateCSharpCode(values: BSTValue[], path: BSTValue[], action?: TerminalAction): string {
   const numericValues = toNumericCodeValues(values);
   const numericPath = path.map((value) => {
     if (typeof value === 'number') return value;
@@ -347,6 +396,23 @@ function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
     '    root.Left = Insert(root.Left, val);',
     '  else if (val > root.Data)',
     '    root.Right = Insert(root.Right, val);',
+    '  return root;',
+    '}',
+    '',
+    '// Delete function to remove a node while preserving BST ordering',
+    'Node? Delete(Node? root, int val) {',
+    '  if (root == null) return null;',
+    '  if (val < root.Data)',
+    '    root.Left = Delete(root.Left, val);',
+    '  else if (val > root.Data)',
+    '    root.Right = Delete(root.Right, val);',
+    '  else {',
+    '    if (root.Left == null) return root.Right;',
+    '    if (root.Right == null) return root.Left;',
+    '    Node? successor = FindMin(root.Right);',
+    '    root.Data = successor!.Data;',
+    '    root.Right = Delete(root.Right, successor.Data);',
+    '  }',
     '  return root;',
     '}',
     '',
@@ -382,7 +448,7 @@ function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
     '  }',
     '  Node? FindMaxSub(Node? r) {',
     '    if (r == null) return null;',
-    '    while (r.Left != null) { r = r.Left; }',
+    '    while (r.Right != null) { r = r.Right; }',
     '    return r;',
     '}',
     '  return FindMaxSub(targetNode.Left);',
@@ -396,7 +462,7 @@ function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
     '  }',
     '  Node? FindMinSub(Node? r) {',
     '    if (r == null) return null;',
-    '    while (r.Right != null) { r = r.Right; }',
+    '    while (r.Left != null) { r = r.Left; }',
     '  return r;',
     '}',
     '  return FindMinSub(targetNode.Right);',
@@ -424,29 +490,34 @@ function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
   code.push('    for (int i = 0; i < n; i++) {');
   code.push('      root = Insert(root, values[i]);');
   code.push('    }');
+  if (action?.op === 'DELETE' && action.val !== null) {
+    const deleteVal = typeof action.val === 'number' ? action.val : action.val.toUpperCase().charCodeAt(0) - 64;
+    code.push(`    root = Delete(root, ${deleteVal});`);
+  }
   code.push('');
 
   if (numericPath.length > 0) {
     code.push('    // Operations matching the diagram targets');
-    code.push('    Node? minNode = FindMin(root);');
-    code.push('    Node? maxNode = FindMax(root);');
+    code.push('    Node minNode = findMin(root);');
+    code.push('    Node maxNode = findMax(root);');
     const targetVal = numericPath[numericPath.length - 1];
-    code.push(`    Node? targetNode = FindNode(root, ${targetVal});`);
-    code.push('    Node? predecessor = null;');
-    code.push('    Node? successor = null;');
+    code.push(`    Node targetNode = findNode(root, ${targetVal});`);
+    code.push('    Node predecessor = null;');
+    code.push('    Node successor = null;');
     if (numericPath.includes(targetVal)) {
-      code.push('    predecessor = FindPredecessor(root, ' + targetVal + ');');
-      code.push('    successor = FindSuccessor(root, ' + targetVal + ');');
+      code.push('    predecessor = findPredecessor(root, ' + targetVal + ');');
+      code.push('    successor = findSuccessor(root, ' + targetVal + ');');
     }
     code.push('');
-    code.push('    InorderTraversal(root);');
-    code.push('    Console.WriteLine("");');
-    code.push(`    Console.WriteLine("TARGET Node: " + targetNode?.Data)`);
-    code.push(`    Console.WriteLine("MIN Node:    " + minNode?.Data)`);
-    code.push(`    Console.WriteLine("MAX Node:    " + maxNode?.Data)`);
+    code.push('    System.out.print("In-Order Traversal: ");');
+    code.push('    inorderTraversal(root);');
+    code.push('    System.out.println("");');
+    code.push(`    System.out.println("TARGET Node: " + targetNode.data)`);
+    code.push(`    System.out.println("MIN Node:    " + minNode.data)`);
+    code.push(`    System.out.println("MAX Node:    " + maxNode.data)`);
     if (path.length >= 2) {
-      code.push('    Console.WriteLine("PRED (<):    " + predecessor?.Data);');
-      code.push('    Console.WriteLine("SUCC (>):    " + successor?.Data);');
+      code.push('    System.out.println("PRED (<):    " + predecessor.data);');
+      code.push('    System.out.println("SUCC (>):    " + successor.data);');
     }
   }
   code.push('  }');
@@ -455,7 +526,7 @@ function generateCSharpCode(values: BSTValue[], path: BSTValue[]): string {
   return code.join('\n');
 }
 
-const CODE_GENERATORS: Record<SupportedLanguage, (values: BSTValue[], path: BSTValue[]) => string> = {
+const CODE_GENERATORS: Record<SupportedLanguage, (values: BSTValue[], path: BSTValue[], action?: TerminalAction) => string> = {
   C: generateCCode,
   JAVA: generateJavaCode,
   'C#': generateCSharpCode,
@@ -581,7 +652,7 @@ export const CodeTerminal: React.FC<CodeTerminalProps> = ({
   const treeValues = action.treeValues ?? [];
   const hasTree = treeValues.length > 0;
   const generateCode = CODE_GENERATORS[selectedLang];
-  const fullCode = hasTree ? generateCode(treeValues, action.path) : '';
+  const fullCode = hasTree ? generateCode(treeValues, action.path, action) : '';
   const lines = hasTree ? fullCode.split('\n') : [];
   // Determine highlight range based on operation
   const highlightRef = { current: [1, 1] as [number, number] };
